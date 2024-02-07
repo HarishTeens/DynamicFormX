@@ -33,3 +33,4 @@ export default {
 
 ### Ref
 https://github.com/InseeFr/sugoi-ui
+https://www.dhiwise.com/post/mastering-jsoneditor-react-for-efficient-data-manipulation
