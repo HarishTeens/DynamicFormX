@@ -1,33 +1,20 @@
-import AceEditor from 'react-ace';
 
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-monokai';
+import JSONEditor from './Panes/JSONEditor';
+import FormView from './Panes/FormView';
+import { useState } from 'react';
 
+const jsonData = JSON.stringify({ "name": "John", "age": 30, "city": "New York" }, null, 4);
 function App() {
-  const jsonData = { "name": "John", "age": 30, "city": "New York" };
+  const [formJson, setFormJson] = useState<string>(jsonData);
+  const onSave = (val: string) => setFormJson(val);
+
   return (
     <div className="flex flex-col h-screen">
       <h1 className='text-center text-3xl'>DynamicFormX</h1>
       <div className="flex-grow border mt-5">
         <div className="flex flex-row h-full">
-          <div className="w-1/2 border flex flex-col">
-            <div className="flex-grow">
-              <AceEditor
-                mode="json"
-                theme="monokai"
-                value={JSON.stringify(jsonData, null, 4)}
-                onChange={newValue => console.log(newValue)}
-                name="UNIQUE_ID_OF_DIV"
-                editorProps={{ $blockScrolling: true }}
-                fontSize={14}
-                style={{ height: '100%', width: '100%' }}
-              />
-            </div>
-            <button>Save</button>
-          </div>
-          <div className="w-1/2 border">
-            <h2 className="text-center text-2xl">Preview</h2>
-          </div>
+          <JSONEditor data={formJson} saveData={onSave} />
+          <FormView />
         </div>
       </div>
     </div>
