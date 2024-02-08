@@ -1,0 +1,25 @@
+@layer base {
+    button {
+      @apply border-2 border-green-700 font-semibold px-2.5 py-3 rounded flex items-center justify-center;
+    }
+  
+    button[disabled] {
+      background: rgba(242, 242, 242, 1);
+      color: rgba(153, 153, 153, 1)!important;
+      background-image: none;
+  
+    }
+  
+    button[data-variant="secondary"] {
+      @apply from-secondary to-secondary-light;
+    }
+  
+    button[data-variant="tertiary"] {
+      @apply from-neutral-200 to-neutral-200 text-primary-text;
+    }
+  
+    button[data-variant="primary-light"] {
+      @apply from-primary-light to-primary-light text-primary;
+    }
+  }
+  
