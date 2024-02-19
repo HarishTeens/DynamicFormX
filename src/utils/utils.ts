@@ -71,3 +71,19 @@ export const refineObject = (obj: object) => {
 export const modNameToKey = (str: string) => {
     return str.split(" ").map(x => x.toLowerCase()).join("") + "Id"
 }
+
+export function detectMimeType(b64: string) {
+    const signatures = {
+        JVBERi0: "application/pdf",
+        R0lGODdh: "image/gif",
+        R0lGODlh: "image/gif",
+        iVBORw0KGgo: "image/png",
+        "/9j/": "image/jpg",
+    };
+
+    for (const s in signatures) {
+        if (b64.indexOf(s) === 0) {
+            return signatures[s as keyof typeof signatures];
+        }
+    }
+}

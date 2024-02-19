@@ -1,3 +1,3 @@
-import { IFileUploadResponse } from "~/services/file/upload";
+import { IFileUploadResponse } from ".";
 
 export type IFileOnChange = (files: IFileUploadResponse[]) => void;

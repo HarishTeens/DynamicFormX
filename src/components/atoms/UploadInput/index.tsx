@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState, Fragment, RefObject } from "react";
-import { IFileUploadResponse, fileUpload, useFileUpload } from "~/services/file/upload";
 import { IFileOnChange } from "./types";
-import { downloadFileThroughAPI } from "~/services/file/download";
 import { Dialog, Transition } from '@headlessui/react';
 import Dustbin from "~/assets/icons/Delete";
 import DownloadIcon from "~/assets/icons/Download";
 import FileIcon from "~/assets/icons/File";
 
+export interface IFileUploadResponse {
+  flag?: number;
+  id?: string;
+  fileName: string;
+  base64?: string;
+}
 interface IUploadInputProps {
   onChangeUpload: IFileOnChange;
   multiple: boolean;
@@ -16,10 +20,10 @@ interface IUploadInputProps {
   indicator?: "error" | "success" | "warning" | "success";
 }
 
+
 const UploadInput: React.FC<IUploadInputProps> = ({ ...props }) => {
   const inputRef = useRef<HTMLInputElement>() as RefObject<HTMLInputElement>;
   const [uploadedFiles, setUploadedFiles] = useState<Array<IFileUploadResponse>>([]);
-  const { data, isLoading } = useFileUpload();
   const [modalOpen, setModalOpen] = useState(false);
   const handleModalClose = () => {
     setModalOpen(false);
@@ -44,24 +48,6 @@ const UploadInput: React.FC<IUploadInputProps> = ({ ...props }) => {
   };
 
   useEffect(() => {
-    if (data) {
-      setUploadedFiles((prevUploadedFiles) => {
-        const existingFileIndex = prevUploadedFiles.findIndex(
-          (file) => file.fileName === data.fileName
-        );
-        if (existingFileIndex !== -1) {
-          return prevUploadedFiles.map((file, index) =>
-            index === existingFileIndex ? data : file
-          );
-        } else {
-          return [...prevUploadedFiles, data];
-        }
-      });
-    }
-  }, [data]);
-
-
-  useEffect(() => {
     if (props.initialValue) {
       setUploadedFiles(props.initialValue);
     }
@@ -73,19 +59,15 @@ const UploadInput: React.FC<IUploadInputProps> = ({ ...props }) => {
       if (props.multiple) {
         const uploadPromises = files.map(async (file) => {
           const fileBase64 = await getBase64(file);
-          if (!isLoading) {
-            const isDuplicate = uploadedFiles.some(
-              (uploadedFile) => uploadedFile.fileName === file.name
-            );
-            if (!isDuplicate && file.name) {
-              return fileUpload({
-                fileName: file.name,
-                file: fileBase64,
-                flag: null,
-                filepath: "document",
-                userid: 312,
-              });
-            }
+          const isDuplicate = uploadedFiles.some(
+            (uploadedFile) => uploadedFile.fileName === file.name
+          );
+          if (!isDuplicate && file.name) {
+            console.log("file ready for upload", {
+              fileName: file.name,
+              file: fileBase64,
+            })
+            return {} as IFileUploadResponse
           }
         });
 
@@ -94,11 +76,11 @@ const UploadInput: React.FC<IUploadInputProps> = ({ ...props }) => {
           const newUploadedFiles = [...uploadedFiles]
           results.forEach((result) => {
             if (result.status === "fulfilled") {
-              const fileResult = result.value as IFileUploadResponse;
+              const fileResult = result.value;
               const isNotDuplicate = newUploadedFiles.every(
-                (newFile) => newFile.fileName !== fileResult.fileName
+                (newFile) => newFile.fileName !== fileResult?.fileName
               );
-              if (isNotDuplicate) {
+              if (isNotDuplicate && fileResult) {
                 newUploadedFiles.push(fileResult);
               }
             }
@@ -121,13 +103,14 @@ const UploadInput: React.FC<IUploadInputProps> = ({ ...props }) => {
           filepath: "document",
           userid: 312,
         }
-        try {
-          const result = await fileUpload(fileData);
-          setUploadedFiles([result]);
-          props.onChangeUpload([result]);
-        } catch (error) {
-          console.log('Error uploading file:', error);
-        }
+        console.log("fileUpload", fileData);
+        // try {
+        //   const result = await fileUpload(fileData);
+        //   setUploadedFiles([result]);
+        //   props.onChangeUpload([result]);
+        // } catch (error) {
+        //   console.log('Error uploading file:', error);
+        // }
       }
     }
   };
@@ -147,54 +130,13 @@ const UploadInput: React.FC<IUploadInputProps> = ({ ...props }) => {
     warning: "border-warning text-warning focus:border-warning",
     info: "border-success text-info focus:border-info",
   };
-  const signatures = {
-    JVBERi0: "application/pdf",
-    R0lGODdh: "image/gif",
-    R0lGODlh: "image/gif",
-    iVBORw0KGgo: "image/png",
-    "/9j/": "image/jpg",
-  };
 
-  function detectMimeType(b64: string) {
-    for (const s in signatures) {
-      if (b64.indexOf(s) === 0) {
-        return signatures[s as keyof typeof signatures];
-      }
-    }
-  }
+
   const downloadFile = async (fileIdx: number) => {
     console.log("fileIdx", fileIdx);
   };
   const handleFileClick = async (fileIdx: number) => {
-    const file = uploadedFiles[fileIdx];
-    const ext = file.fileName.toLowerCase().split('.').pop();
-
-    if ([".pdf", ".jpg", ".jpeg", ".png"].includes("." + ext)) {
-      if (props.getBase64 && file.flag === 3 && file.base64) {
-        const decodedFileContent = atob(file.base64);
-        const mimeType = detectMimeType(file.base64);
-        const byteNumbers = Array.from(decodedFileContent).map((c) => c.charCodeAt(0));
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-      } else {
-        const resp = await downloadFileThroughAPI(file);
-        const mimeType = detectMimeType(resp.file);
-        const byteCharacters = atob(resp.file);
-        const byteNumbers = new Uint8Array(byteCharacters.length);
-
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-
-        const blob = new Blob([byteNumbers], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-      }
-    } else {
-      downloadFile(fileIdx);
-    }
+    downloadFile(fileIdx);
   };
 
   const handleDownloadClick = (index: number) => {
