@@ -1,0 +1,19 @@
+input[type="checkbox"] {
+  @apply appearance-none w-5 h-5 rounded bg-gray-200 border-none cursor-pointer relative overflow-hidden;
+}
+
+input[type="checkbox"]:checked {
+  @apply bg-gradient-to-br from-primary to-primary/75;
+}
+
+input[type="checkbox"]::before {
+  @apply content-[""] p-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/6 h-2/6 pointer-events-none bg-contain bg-no-repeat hidden bg-[url("../../../assets/icons/check.svg")];
+}
+
+input[type="checkbox"]:checked::before {
+  @apply block;
+}
+
+input[type="checkbox"][disabled] {
+  @apply opacity-60;
+}
