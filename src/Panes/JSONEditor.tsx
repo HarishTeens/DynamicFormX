@@ -33,7 +33,7 @@ const JSONEditor: React.FC<IJSONEditorProps> = (props) => {
                         console.log(val)
                         jsonData = val
                     }}
-                    name="UNIQUE_ID_OF_DIV"
+                    name="JSON_EDITOR"
                     editorProps={{ $blockScrolling: true }}
                     fontSize={14}
                     style={{ height: '100%', width: '100%' }}
