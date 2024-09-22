@@ -1,6 +1,7 @@
 # DynamicFormX
 This is how it looks like for now:
-<img width="1721" alt="Screenshot 2024-02-20 at 9 35 09 AM" src="https://github.com/HarishTeens/DynamicFormX/assets/33366456/39183385-246d-4857-ade2-5a6841d2c044">
+<img width="1728" alt="Screenshot 2024-09-23 at 12 26 05 AM" src="https://github.com/user-attachments/assets/1824a60b-94fb-4a52-9397-2886090ba281">
+
 
 ### TODOS
 - Support CKEditor
